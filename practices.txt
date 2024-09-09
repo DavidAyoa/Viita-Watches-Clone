@@ -1,0 +1,6 @@
+1. FONT LOADING
+
+-- Subset font to only include the language i use
+-- custom font loading with font-display property
+-- preload fonts
+-- implement caching through the Cache-Control header
