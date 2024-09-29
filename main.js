@@ -3,8 +3,8 @@ import Lenis from "@studio-freight/lenis";
 import { gsap, ScrollTrigger } from "gsap/all";
 
 const lenis = new Lenis({
-  duration: 1.5,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  duration: 0.5,
+  easing: (t) => t,
 });
 
 const raf = (time) => {
@@ -17,10 +17,25 @@ requestAnimationFrame(raf);
 gsap.registerPlugin(ScrollTrigger);
 const mm = gsap.matchMedia();
 
+ScrollTrigger.defaults({
+  fastScrollEnd: 3000
+})
+
+//-------------------------------------------------------------------------------------------------
 // const setPresentNavigationStatus = (navlink) => {
 //   const presentlyActive = document.querySelectorAll(
-//   document.getElementById(navlink).classList.add("active");
+//   document.getElementById(navlink).classList.add("active")
+//   );
 // }
+//-------------------------------------------------------------------------------------------------
+
+const debounce = (func, delay) => {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+};
 
 const loadViita = () => {
   console.log(
@@ -53,14 +68,6 @@ const loadViita = () => {
       frame.appendChild(span);
       preloader.appendChild(frame);
     }
-  };
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
   };
 
   const debouncedCreateDivs = debounce(createDivs, 300);
@@ -242,15 +249,7 @@ tl.to(
   0
 );
 
-// PRODUCTS
-
-// when the product-pinner reaches the top of the screen, the child product container will
-// rotate and scale, when the next product pinner after reaches, the former dissapears
-
-// when the product-pinner reaches the 50% of the screen, the child product container's image is at 75% off
-// the top of the container, goes to 0 when product pinner pins and back to 25%  off as it scalles away
-
-// 1.make "finished prodcuts" disappear when first product gets to the top
+// --------------------------------- PRODUCTS
 
 gsap.fromTo("#counter-box", {
   visibility: "visible"
@@ -326,6 +325,7 @@ productPinnersList.forEach((productPinner, index) => {
       end: "bottom top",
       toggleActions: "none complete reverse reset",
       pin: true,
+      anticipatePin: 1,
       pinSpacing: false
     },
     opacity: 0,
@@ -380,72 +380,166 @@ productPinnersList.forEach((productPinner, index) => {
   }
 });
 
+// INTER FRAMES
 
+const createInterFrames = () => {
+  const widthGreaterThanHeight = window.innerWidth > window.innerHeight;
+  const numberOfDivs = widthGreaterThanHeight ? 200 : 100;
 
+  const interFramesHolder = document.getElementById("framer");
 
+  for (let d = 0; d < numberOfDivs; d++) {
+    const div = document.createElement("div");
+    div.classList.add("inter-divs");
 
+    interFramesHolder.appendChild(div);
+  }
+}
 
+const debouncedCreateInterFrames = debounce(createInterFrames, 300);
+createInterFrames();
+window.addEventListener("resize", debouncedCreateInterFrames);
 
+gsap.fromTo(".inter-divs", {
+  visibility: "hidden"
+}, {
+  scrollTrigger: {
+    trigger: "#v-og-trigger",
+    start: "top top",
+    end: "bottom top",
+    scrub: true
+  },
+  visibility: "visible",
+  stagger: {
+    each: 0.02,
+    from: "random",
+  },
+  ease: "none",
+  duration: 0.1
+})
 
+// -------------------------- ABOUT
 
+const partShowcase = document.querySelectorAll(".part-showcase");
 
-
-
-
-
-
-
-
-
-// const productPinnersList = gsap.utils.toArray(".product-pinner");
-// productPinnersList.forEach((productPinner, i) => {
-//   let nextProductPinner;
-//   let previousProduct;
-//   const product = productPinner.querySelector(".product");
-//   const productBg = productPinner.querySelector(".prod--bg");
+partShowcase.forEach(showcase => {
+  const healthIcons = showcase.querySelectorAll(".icon-health");
+  const softwareIcons = showcase.querySelectorAll(".icon-software");
+  const hardwareIcons = showcase.querySelectorAll(".icon-hardware");
+  const showcaseTexts = showcase.querySelectorAll(".showcase-word");
   
-//   const tl = gsap.timeline();
+  const animationInts = {
+    200: [0, 0, 0, 1],
+    600: [1, 0, 0, 0],
+    800: [0, 1, 0, 0],
+    1000: [0, 0, 1, 0],
+    1200: [0, 0, 0, 1]
+  }
 
-//   gsap.to(product, {
-//     scrollTrigger: {
-//       trigger: productPinner,
-//       pin: true,
-//       pinSpacing: false,
-//       scrub: 1,
-//       onEnter: () => {
-//         nextProductPinner = productPinnersList[i+1];
-//         console.log("Next product pinner: ", nextProductPinner);
-//         if (i > 0) {
-//           previousProduct = productPinnersList[i-1].querySelector(".product");
-//           console.log("Previous product: ", previousProduct);
-//         }
-//       }
-//       // markers: true
-//     },
-//     scale: 1,
-//   })
+  const displayShowcase = () => {
+    for (const int of Object.keys(animationInts)) {
+      setTimeout(() => {
+        healthIcons.forEach(healthIcon => healthIcon.style.opacity = animationInts[int][0]);
+        softwareIcons.forEach(softwareIcon => softwareIcon.style.opacity = animationInts[int][1]);
+        hardwareIcons.forEach(hardwareIcon => hardwareIcon.style.opacity = animationInts[int][2]);
+        showcaseTexts.forEach(showcaseText => showcaseText.style.opacity = animationInts[int][3]);
+      }, Number(int))
+    }
+  }
 
-//   // gsap.to(product, {
-//   //   scrollTrigger: {
-//   //     trigger: productPinner,
-//   //     pin: true,
-//   //     pinSpacing: false,
-//   //     scrub: 1,
-//   //     markers: true
-//   //   },
-//   //   scale: 1,
-//   // })
+  displayShowcase();
+  setInterval(displayShowcase, 1700);
+})
 
-//   // gsap.fromTo(productBg, {
-//   //   scale: 1.5,
-//   //   y: "15vh"
-//   // }, {
-//   //   scrollTrigger: {
-//   //     trigger: product,
-//   //     start:  "top 80%",
-//   //     scrub: 1,
-//   //     markers: true
-//   //   },
-//   //   y: "0vh"
-//   // })
-// })
+// -------------------------
+
+gsap.fromTo("#about-icon-showcase", {
+  opacity: 0
+}, {
+  scrollTrigger: {
+    trigger: "#about",
+    start: "top 5%",
+    end: "+=500",
+    scrub: true
+  },
+  opacity: 1
+})
+
+gsap.to("#about-icon-showcase > .part-showcase:not(:nth-child(5))", {
+  scrollTrigger: {
+    trigger: "#about",
+    start: "top -=600",
+    end: "+=500",
+    scrub: true
+  },
+  opacity: 0
+})
+
+const centerShowcase = document.querySelector("#about-icon-showcase > .part-showcase:nth-child(5)");
+const scalingLogoCon = document.querySelector("#scaling-logo");
+const aboutImg = document.querySelector("#about-img");
+
+ScrollTrigger.create({
+  trigger: "#about",
+  start: "top -=400",
+  onEnter: () => {
+    centerShowcase.style.opacity = 0;
+    scalingLogoCon.style.opacity = 1;
+  },
+  onLeaveBack: () => {
+    centerShowcase.style.opacity = 1;
+    scalingLogoCon.style.opacity = 0;
+  }
+});
+
+gsap.to("#scaling-logo > svg", {
+  scrollTrigger: {
+    trigger: "#about",
+    start: "top -=800",
+    end: "+=8000",
+    scrub: true,
+    markers: true
+  },
+  x: "72vw",
+  width: "8000vw",
+  height: "8000vw"
+})
+
+gsap.to("#rectOpac", {
+  scrollTrigger: {
+    trigger: "#about",
+    start: "top -=2000",
+    end: "+=800",
+    onEnter: () => aboutImg.style.opacity = 1,
+    onLeaveBack: () => aboutImg.style.opacity = 0,
+    scrub: true,
+  },
+  opacity: 0
+})
+
+gsap.fromTo(aboutImg, {
+  y: "0vh",
+  scale: 1.2
+}, {
+  scrollTrigger: {
+    trigger: "#about",
+    start: "top -=2200",
+    end: "+=2000",
+    scrub: true,
+    markers: true
+  },
+  y: "10vh",
+  scale: 1
+})
+
+
+
+
+
+
+
+
+
+
+
+ScrollTrigger.refresh();
