@@ -1,6 +1,7 @@
 import "./main.css";
 import Lenis from "@studio-freight/lenis";
 import { gsap, ScrollTrigger } from "gsap/all";
+import SplitType from 'split-type'
 
 const lenis = new Lenis({
   duration: 0.5,
@@ -468,8 +469,8 @@ gsap.fromTo("#about-icon-showcase", {
 gsap.to("#about-icon-showcase > .part-showcase:not(:nth-child(5))", {
   scrollTrigger: {
     trigger: "#about",
-    start: "top -=600",
-    end: "+=500",
+    start: "top -=50%",
+    end: "+=50%",
     scrub: true
   },
   opacity: 0
@@ -478,59 +479,98 @@ gsap.to("#about-icon-showcase > .part-showcase:not(:nth-child(5))", {
 const centerShowcase = document.querySelector("#about-icon-showcase > .part-showcase:nth-child(5)");
 const scalingLogoCon = document.querySelector("#scaling-logo");
 const aboutImg = document.querySelector("#about-img");
+const aboutContent = document.querySelector("#about-content");
 
 ScrollTrigger.create({
   trigger: "#about",
-  start: "top -=400",
+  start: "top -=40%",
   onEnter: () => {
     centerShowcase.style.opacity = 0;
     scalingLogoCon.style.opacity = 1;
+    // aboutContent.classList.add("difference");
   },
   onLeaveBack: () => {
     centerShowcase.style.opacity = 1;
     scalingLogoCon.style.opacity = 0;
+    // aboutContent.classList.remove("difference");
   }
 });
 
 gsap.to("#scaling-logo > svg", {
   scrollTrigger: {
     trigger: "#about",
-    start: "top -=800",
-    end: "+=8000",
-    scrub: true,
-    markers: true
+    start: "top -=80%",
+    end: "bottom+=100% bottom",
+    endTrigger: "h1.intro-text",
+    scrub: true
   },
-  x: "72vw",
-  width: "8000vw",
-  height: "8000vw"
+  x: "50vw",
+  width: "5600vw",
+  height: "5600vw"
 })
 
 gsap.to("#rectOpac", {
   scrollTrigger: {
-    trigger: "#about",
-    start: "top -=2000",
-    end: "+=800",
+    // trigger: "#about",
+    trigger: "h1.intro-text",
+    start: "top bottom+=220%",
+    end: "+=120%",
+    // end: "bottom bottom",
+    // endTrigger: "h1.intro-text",
     onEnter: () => aboutImg.style.opacity = 1,
     onLeaveBack: () => aboutImg.style.opacity = 0,
     scrub: true,
+    markers: true
   },
   opacity: 0
 })
 
 gsap.fromTo(aboutImg, {
-  y: "0vh",
+  y: "10vh",
   scale: 1.2
 }, {
   scrollTrigger: {
-    trigger: "#about",
-    start: "top -=2200",
-    end: "+=2000",
-    scrub: true,
-    markers: true
+    trigger: "h1.intro-text",
+    start: "top bottom+=200%",
+    end: "bottom+=150% bottom",
+    endTrigger: "h1.intro-text",
+    scrub: true
   },
-  y: "10vh",
+  y: "0vh",
   scale: 1
 })
+
+const bugattis = document.querySelectorAll(".bugatti-text-lifter");
+
+bugattis.forEach((bugatti) => {
+  const lifter = new SplitType(bugatti, {
+    types: "chars",
+  });
+
+  gsap.to(lifter.chars, {
+    scrollTrigger: {
+      trigger: aboutContent,
+      start: "top top",
+      toggleActions: "restart none none none",
+      markers: true
+    },
+    y: "-100%",
+    stagger: 0.2,
+  });
+});
+
+gsap.to(aboutContent, {
+  scrollTrigger: {
+    trigger: aboutContent,
+    pin: true,
+    scrub: true,
+    end: () => `+=${aboutContent.offsetWidth}`,
+  },
+  xPercent: -100,
+  ease: "none",
+});
+
+
 
 
 
